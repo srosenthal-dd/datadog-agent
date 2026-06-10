@@ -6,6 +6,7 @@ go_library(
         "aws.go",
         "resolve_credentials_ec2.go",
         "resolve_credentials_noec2.go",
+        "webidentity.go",
     ],
     importpath = "github.com/DataDog/datadog-agent/comp/core/delegatedauth/api/cloudauth/aws",
     visibility = ["//visibility:public"],
@@ -27,6 +28,7 @@ go_test(
     srcs = [
         "aws_test.go",
         "resolve_credentials_ec2_test.go",
+        "resolve_credentials_noec2_test.go",
         "resolve_credentials_test.go",
     ],
     embed = [":aws"],

@@ -105,14 +105,18 @@ func (a *AWSAuth) GenerateAuthProof(ctx context.Context, _ pkgconfigmodel.Reader
 
 // getCredentials retrieves AWS credentials using the build-tag-selected chain:
 //   - ec2 build: AWS SDK chain limited to env -> web identity -> container -> IMDS (shared config/SSO/profiles disabled)
-//   - non-ec2 build: static env vars only (AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY)
+//   - non-ec2 build: lightweight SDK-free subset -- env -> web identity -> container (IMDS excluded)
 func (a *AWSAuth) getCredentials(ctx context.Context) *creds.SecurityCredentials {
 	resolved := a.resolveCredentials(ctx)
 	if resolved == nil {
 		return &creds.SecurityCredentials{}
 	}
 	if resolved.AccessKeyID == "" || resolved.SecretAccessKey == "" {
-		log.Debugf("AWS credential resolution returned empty credentials")
+		if creds.HasAWSCredentialsInEnvironment() || creds.HasAWSWorkloadIdentityInEnvironment() || creds.HasAWSContainerCredentialsInEnvironment() {
+			log.Warnf("AWS credential source is configured but resolution returned empty credentials")
+		} else {
+			log.Debugf("AWS credential resolution returned empty credentials (no source configured)")
+		}
 	}
 	return resolved
 }

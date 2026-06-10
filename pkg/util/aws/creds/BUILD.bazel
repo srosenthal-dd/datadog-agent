@@ -17,6 +17,7 @@ go_test(
     name = "creds_test",
     srcs = [
         "credentials_test.go",
+        "detection_noec2_test.go",
         "detection_test.go",
     ],
     embed = [":creds"],
